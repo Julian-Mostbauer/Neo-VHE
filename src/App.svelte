@@ -1,16 +1,27 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { tick } from "svelte";
-  import { shapeStore } from "./lib/shapestore";
-  import type { ShapeData } from "./lib/shapestore";
   import { get } from "svelte/store";
 
+  import type { ShapeData } from "./lib/shapestore";
   import type { HtmlElement, Shape } from "./lib/customTypes.ts";
+
+  import { shapeStore } from "./lib/shapestore";
+  import { isHtmlElement } from "./lib/customTypes";
 
   import RectOptions from "./lib/RectOptions.svelte";
   import CircleOptions from "./lib/CircleOptions.svelte";
   import EllipseOptions from "./lib/EllipseOptions.svelte";
   import TriangleOptions from "./lib/TriangleOptions.svelte";
+  import PolygonOptions from "./lib/PolygonOptions.svelte";
+
+  const optionsMap: Record<string, { component: any; label: string }> = {
+    rect: { component: RectOptions, label: "Rectangle" },
+    circle: { component: CircleOptions, label: "Circle" },
+    ellipse: { component: EllipseOptions, label: "Ellipse" },
+    triangle: { component: TriangleOptions, label: "Triangle" },
+    polygon: { component: PolygonOptions, label: "Polygon" },
+  };
 
   let selectedOption: Shape = "rect";
   let notification = {
@@ -52,82 +63,82 @@
     }
   });
 
-  function addRectangle() {
+  function addShape() {
     if (canvas) {
-      // @ts-ignore
-      const rect = new fabric.Rect({
-        left: shapeData.left,
-        top: shapeData.top,
-        fill: shapeData.fill,
-        width: shapeData.width,
-        height: shapeData.height,
-        angle: shapeData.angle,
-      });
-
-      rect.strokeLineCap = shapeData.htmlElement;
-      canvas.add(rect);
-    }
-  }
-
-  function addCircle() {
-    if (canvas) {
-      // @ts-ignore
-      const circle = new fabric.Circle({
-        radius: shapeData.radius,
-        fill: shapeData.fill,
-        left: shapeData.left,
-        top: shapeData.top,
-      });
-      canvas.add(circle);
-    }
-  }
-
-  function addEllipse() {
-    if (canvas) {
-      // @ts-ignore
-      const ellipse = new fabric.Ellipse({
-        rx: shapeData.rx,
-        ry: shapeData.ry,
-        fill: shapeData.fill,
-        left: shapeData.left,
-        top: shapeData.top,
-      });
-      canvas.add(ellipse);
-    }
-  }
-
-  function addTriangle() {
-    if (canvas) {
-      // @ts-ignore
-      const triangle = new fabric.Triangle({
-        width: shapeData.width,
-        height: shapeData.height,
-        fill: shapeData.fill,
-        left: shapeData.left,
-        top: shapeData.top,
-      });
-      canvas.add(triangle);
-    }
-  }
-
-  function addRandomPolygon() {
-    if (canvas) {
-      let points = [];
-      for (let i = 0; i < 2.5 + Math.random() * 10; i++) {
-        points.push({
-          x: Math.random() * canvasDimensions.width,
-          y: Math.random() * canvasDimensions.height,
-        });
+      let shape;
+      switch (selectedOption) {
+        case "rect":
+          // @ts-ignore
+          shape = new fabric.Rect({
+            left: shapeData.left,
+            top: shapeData.top,
+            fill: shapeData.fill,
+            width: shapeData.width,
+            height: shapeData.height,
+            angle: shapeData.angle,
+          });
+          shape.strokeLineCap = shapeData.htmlElement;
+          break;
+        case "circle":
+          // @ts-ignore
+          shape = new fabric.Circle({
+            radius: shapeData.radius,
+            fill: shapeData.fill,
+            left: shapeData.left,
+            top: shapeData.top,
+          });
+          break;
+        case "ellipse":
+          // @ts-ignore
+          shape = new fabric.Ellipse({
+            rx: shapeData.rx,
+            ry: shapeData.ry,
+            fill: shapeData.fill,
+            left: shapeData.left,
+            top: shapeData.top,
+          });
+          break;
+        case "triangle":
+          // @ts-ignore
+          shape = new fabric.Triangle({
+            width: shapeData.width,
+            height: shapeData.height,
+            fill: shapeData.fill,
+            left: shapeData.left,
+            top: shapeData.top,
+            angle: shapeData.angle,
+          });
+          break;
+        case "polygon":
+          // @ts-ignore
+          shape = new fabric.Polygon(shapeData.points, {
+            fill: shapeData.fill,
+            left: shapeData.left,
+            top: shapeData.top,
+          });
+          break;
+        default:
+          break;
       }
-      // @ts-ignore
-      const polygon = new fabric.Polygon(points, {
-        left: Math.random() * canvasDimensions.width,
-        top: Math.random() * canvasDimensions.height,
-        fill: `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},${Math.random()})`,
-        angle: Math.random() * 360,
-      });
-      canvas.add(polygon);
+      if (shape) {
+        canvas.add(shape);
+      }
     }
+  }
+
+  function randomizeData() {
+    let points = [];
+    for (let i = 0; i < 2.5 + Math.random() * 10; i++) {
+      points.push({
+        x: Math.random() * canvasDimensions.width,
+        y: Math.random() * canvasDimensions.height,
+      });
+    }
+    shapeData.left = Math.random() * canvasDimensions.width;
+    shapeData.top = Math.random() * canvasDimensions.height;
+    shapeData.fill = `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},${Math.random()})`;
+    shapeData.angle = Math.random() * 360;
+    shapeStore.set(shapeData);
   }
 
   function clearCanvas() {
@@ -146,32 +157,27 @@
 
   function exportToClipboard() {
     if (canvas) {
+      let nullElementFlag = false;
       const data = canvas.toJSON().objects.map((obj): string => {
-        function isHtmlElement(value: string): value is HtmlElement {
-          return (
-            value === "button" ||
-            value === "div" ||
-            value === "span" ||
-            value === "input" ||
-            value === "select" ||
-            value === "option" ||
-            value === "label"
-          );
-        }
         // @ts-ignore
         if (!isHtmlElement(obj.strokeLineCap)) {
+          nullElementFlag = true;
           obj.strokeLineCap = "nullElement";
         }
-
         return JSON.stringify(obj);
       });
 
-      if (data) {
-        navigator.clipboard.writeText(data.join("\n"));
-        showNotification("Canvas data copied to clipboard!");
-      } else {
+      if (data.length === 0) {
         showNotification("No data to copy!");
+        return;
       }
+
+      navigator.clipboard.writeText(data.join("\n"));
+      showNotification(
+        !nullElementFlag
+          ? "Canvas data copied to clipboard!"
+          : "Canvas data copied to clipboard! Some objects had null elements."
+      );
     }
   }
 </script>
@@ -198,31 +204,12 @@
 
     <button on:click={clearCanvas}>Clear Canvas</button>
     <button on:click={exportToClipboard}>Export</button>
+    <button on:click={randomizeData}>Randomize Values</button>
 
-    {#if selectedOption === "rect"}
-      <RectOptions />
-      <button on:click={addRectangle}>Add Rectangle</button>
-    {/if}
-
-    {#if selectedOption === "circle"}
-      <CircleOptions />
-      <button on:click={addCircle}>Add Circle</button>
-    {/if}
-
-    {#if selectedOption === "ellipse"}
-      <EllipseOptions />
-      <button on:click={addEllipse}>Add Ellipse</button>
-    {/if}
-
-    {#if selectedOption === "triangle"}
-      <TriangleOptions />
-      <button on:click={addTriangle}>Add Triangle</button>
-    {/if}
-
-    {#if selectedOption === "polygon"}
-      <div id="polygonOptions" class="options">
-        <button on:click={addRandomPolygon}>Add Random Polygon</button>
-      </div>
+    {#if optionsMap[selectedOption]}
+      <svelte:component this={optionsMap[selectedOption].component} />
+      <button on:click={addShape}>Add {optionsMap[selectedOption].label}</button
+      >
     {/if}
   </div>
 
