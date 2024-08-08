@@ -7,7 +7,11 @@
   import type { HtmlElement, Shape } from "./lib/customTypes.ts";
 
   import { shapeStore } from "./lib/shapestore";
-  import { isHtmlElement, supportedShapes } from "./lib/customTypes";
+  import {
+    isHtmlElement,
+    supportedShapes,
+    supportedHtmlElements,
+  } from "./lib/customTypes";
 
   import RectOptions from "./lib/RectOptions.svelte";
   import CircleOptions from "./lib/CircleOptions.svelte";
@@ -134,10 +138,22 @@
         y: Math.random() * canvasDimensions.height,
       });
     }
+    shapeData.points = points;
     shapeData.left = Math.random() * canvasDimensions.width;
     shapeData.top = Math.random() * canvasDimensions.height;
     shapeData.fill = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
     shapeData.angle = Math.random() * 360;
+    shapeData.width = Math.random() * canvasDimensions.width;
+    shapeData.height = Math.random() * canvasDimensions.height;
+    shapeData.rx = Math.random() * canvasDimensions.width;
+    shapeData.ry = Math.random() * canvasDimensions.height;
+    shapeData.htmlElement = supportedHtmlElements[
+      Math.floor(Math.random() * supportedHtmlElements.length)
+    ] as HtmlElement;
+    shapeData.radius =
+      (Math.random() *
+        Math.min(canvasDimensions.height, canvasDimensions.width)) /
+      2;
     shapeStore.set(shapeData);
   }
 
@@ -160,6 +176,7 @@
       let nullElementFlag = false;
       const data = canvas.toJSON().objects.map((obj): string => {
         // @ts-ignore
+        // the htmlElement is saved within the strokeLineCap property
         if (!isHtmlElement(obj.strokeLineCap)) {
           nullElementFlag = true;
           obj.strokeLineCap = "nullElement";
@@ -173,6 +190,7 @@
       }
 
       navigator.clipboard.writeText(data.join("\n"));
+
       showNotification(
         !nullElementFlag
           ? "Canvas data copied to clipboard!"

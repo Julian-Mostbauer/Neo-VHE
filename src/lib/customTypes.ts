@@ -1,17 +1,16 @@
-export const supportedHtmlElements: string[] = [
+export const supportedHtmlElements= [
   "button",
   "div",
   "span",
   "input",
   "select",
   "option",
-  "nullElement",
   "label",
 ] as const;
 
 export type HtmlElement = (typeof supportedHtmlElements)[number];
 
-export const supportedShapes: string[] = [
+export const supportedShapes = [
   "rect",
   "circle",
   "ellipse",
