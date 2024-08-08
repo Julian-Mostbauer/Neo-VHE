@@ -1,9 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { tick } from "svelte";
-  import { get } from "svelte/store";
 
-  import type { ShapeData } from "./lib/shapestore";
   import type { HtmlElement, Shape } from "./lib/customTypes.ts";
 
   import { shapeStore } from "./lib/shapestore";
@@ -40,11 +38,6 @@
 
   let canvas: fabric.Canvas;
 
-  let shapeData: ShapeData;
-  shapeStore.subscribe((value) => {
-    shapeData = value;
-  });
-
   function initializeCanvas() {
     const canvasElement = document.getElementById("c") as HTMLCanvasElement;
     if (canvasElement) {
@@ -74,57 +67,58 @@
         case "rect":
           // @ts-ignore
           shape = new fabric.Rect({
-            left: shapeData.left,
-            top: shapeData.top,
-            fill: shapeData.fill,
-            width: shapeData.width,
-            height: shapeData.height,
-            angle: shapeData.angle,
+            left: $shapeStore.left,
+            top: $shapeStore.top,
+            fill: $shapeStore.fill,
+            width: $shapeStore.width,
+            height: $shapeStore.height,
+            angle: $shapeStore.angle,
           });
-          shape.strokeLineCap = shapeData.htmlElement;
           break;
         case "circle":
           // @ts-ignore
           shape = new fabric.Circle({
-            radius: shapeData.radius,
-            fill: shapeData.fill,
-            left: shapeData.left,
-            top: shapeData.top,
+            radius: $shapeStore.radius,
+            fill: $shapeStore.fill,
+            left: $shapeStore.left,
+            top: $shapeStore.top,
           });
           break;
         case "ellipse":
           // @ts-ignore
           shape = new fabric.Ellipse({
-            rx: shapeData.rx,
-            ry: shapeData.ry,
-            fill: shapeData.fill,
-            left: shapeData.left,
-            top: shapeData.top,
+            rx: $shapeStore.rx,
+            ry: $shapeStore.ry,
+            fill: $shapeStore.fill,
+            left: $shapeStore.left,
+            top: $shapeStore.top,
           });
           break;
         case "triangle":
           // @ts-ignore
           shape = new fabric.Triangle({
-            width: shapeData.width,
-            height: shapeData.height,
-            fill: shapeData.fill,
-            left: shapeData.left,
-            top: shapeData.top,
-            angle: shapeData.angle,
+            width: $shapeStore.width,
+            height: $shapeStore.height,
+            fill: $shapeStore.fill,
+            left: $shapeStore.left,
+            top: $shapeStore.top,
+            angle: $shapeStore.angle,
           });
           break;
         case "polygon":
           // @ts-ignore
-          shape = new fabric.Polygon(shapeData.points, {
-            fill: shapeData.fill,
-            left: shapeData.left,
-            top: shapeData.top,
+          shape = new fabric.Polygon($shapeStore.points, {
+            fill: $shapeStore.fill,
+            left: $shapeStore.left,
+            top: $shapeStore.top,
           });
           break;
         default:
           break;
       }
       if (shape) {
+        // the htmlElement is saved within the strokeLineCap property
+        shape.strokeLineCap = $shapeStore.htmlElement;
         canvas.add(shape);
       }
     }
@@ -138,23 +132,23 @@
         y: Math.random() * canvasDimensions.height,
       });
     }
-    shapeData.points = points;
-    shapeData.left = Math.random() * canvasDimensions.width;
-    shapeData.top = Math.random() * canvasDimensions.height;
-    shapeData.fill = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-    shapeData.angle = Math.random() * 360;
-    shapeData.width = Math.random() * canvasDimensions.width;
-    shapeData.height = Math.random() * canvasDimensions.height;
-    shapeData.rx = Math.random() * canvasDimensions.width;
-    shapeData.ry = Math.random() * canvasDimensions.height;
-    shapeData.htmlElement = supportedHtmlElements[
+    $shapeStore.points = points;
+    $shapeStore.left = Math.random() * canvasDimensions.width;
+    $shapeStore.top = Math.random() * canvasDimensions.height;
+    $shapeStore.fill = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+    $shapeStore.angle = Math.random() * 360;
+    $shapeStore.width = Math.random() * canvasDimensions.width;
+    $shapeStore.height = Math.random() * canvasDimensions.height;
+    $shapeStore.rx = Math.random() * canvasDimensions.width;
+    $shapeStore.ry = Math.random() * canvasDimensions.height;
+    $shapeStore.htmlElement = supportedHtmlElements[
       Math.floor(Math.random() * supportedHtmlElements.length)
     ] as HtmlElement;
-    shapeData.radius =
+    $shapeStore.radius =
       (Math.random() *
         Math.min(canvasDimensions.height, canvasDimensions.width)) /
       2;
-    shapeStore.set(shapeData);
+    shapeStore.set($shapeStore);
   }
 
   function clearCanvas() {
