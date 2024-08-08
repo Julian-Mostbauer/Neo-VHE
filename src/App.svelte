@@ -23,15 +23,15 @@
     polygon: { component: PolygonOptions, label: "Polygon" },
   };
 
+  const canvasDimensions = {
+    width: 1500,
+    height: 800,
+  };
+
   let selectedOption: Shape = "rect";
   let notification = {
     text: "This is a notification!",
     isVisible: false,
-  };
-
-  const canvasDimensions = {
-    width: 1500,
-    height: 800,
   };
 
   let canvas: fabric.Canvas;
@@ -136,7 +136,7 @@
     }
     shapeData.left = Math.random() * canvasDimensions.width;
     shapeData.top = Math.random() * canvasDimensions.height;
-    shapeData.fill = `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},${Math.random()})`;
+    shapeData.fill = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
     shapeData.angle = Math.random() * 360;
     shapeStore.set(shapeData);
   }
@@ -205,7 +205,9 @@
     <button on:click={clearCanvas}>Clear Canvas</button>
     <button on:click={exportToClipboard}>Export</button>
     <button on:click={randomizeData}>Randomize Values</button>
-
+ 
+    <button on:click={() => {console.log(shapeData.fill)}}>Show Fill</button>
+ 
     {#if optionsMap[selectedOption]}
       <svelte:component this={optionsMap[selectedOption].component} />
       <button on:click={addShape}>Add {optionsMap[selectedOption].label}</button
