@@ -27,7 +27,7 @@
   <label>
     HTML Element:
     <select bind:value={$shapeStore.htmlElement}>
-      {#each supportedHtmlElements as htmlElement}
+      {#each supportedHtmlElements.filter(n => n != "nullElement") as htmlElement}
         <option value={htmlElement}>{htmlElement}</option>
       {/each}
     </select>

@@ -7,7 +7,7 @@
   import type { HtmlElement, Shape } from "./lib/customTypes.ts";
 
   import { shapeStore } from "./lib/shapestore";
-  import { isHtmlElement } from "./lib/customTypes";
+  import { isHtmlElement, supportedShapes } from "./lib/customTypes";
 
   import RectOptions from "./lib/RectOptions.svelte";
   import CircleOptions from "./lib/CircleOptions.svelte";
@@ -152,7 +152,7 @@
     notification.text = text;
     setTimeout(() => {
       notification.isVisible = false;
-    }, duration); // Hide after 3 seconds
+    }, duration);
   }
 
   function exportToClipboard() {
@@ -195,19 +195,15 @@
 
   <div id="allOptions" class="control-panel">
     <select bind:value={selectedOption}>
-      <option value="rect">Rectangle</option>
-      <option value="circle">Circle</option>
-      <option value="ellipse">Ellipse</option>
-      <option value="triangle">Triangle</option>
-      <option value="polygon">Polygon</option>
+      {#each supportedShapes as shape}
+        <option value={shape}>{shape}</option>
+      {/each}
     </select>
 
     <button on:click={clearCanvas}>Clear Canvas</button>
     <button on:click={exportToClipboard}>Export</button>
     <button on:click={randomizeData}>Randomize Values</button>
- 
-    <button on:click={() => {console.log(shapeData.fill)}}>Show Fill</button>
- 
+
     {#if optionsMap[selectedOption]}
       <svelte:component this={optionsMap[selectedOption].component} />
       <button on:click={addShape}>Add {optionsMap[selectedOption].label}</button

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { shapeStore } from "./shapestore";
+  import { supportedHtmlElements } from "./customTypes";
 </script>
 
 <div id="polygonOptions" class="options">
@@ -14,5 +15,13 @@
   <label>
     fill:
     <input type="color" bind:value={$shapeStore.fill} placeholder="Fill" />
+  </label>
+  <label>
+    HTML Element:
+    <select bind:value={$shapeStore.htmlElement}>
+      {#each supportedHtmlElements.filter(n => n != "nullElement") as htmlElement}
+        <option value={htmlElement}>{htmlElement}</option>
+      {/each}
+    </select>
   </label>
 </div>

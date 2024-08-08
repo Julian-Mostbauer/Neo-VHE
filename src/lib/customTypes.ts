@@ -11,7 +11,7 @@ export const supportedHtmlElements: string[] = [
 
 export type HtmlElement = (typeof supportedHtmlElements)[number];
 
-const supportedShapes: string[] = [
+export const supportedShapes: string[] = [
   "rect",
   "circle",
   "ellipse",

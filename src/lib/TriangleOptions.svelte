@@ -1,5 +1,6 @@
 <script lang="ts">
   import { shapeStore } from "./shapestore";
+  import { supportedHtmlElements } from "./customTypes";
 </script>
 
 <div id="triangleOptions" class="options">
@@ -26,5 +27,13 @@
   <label>
     angle:
     <input type="number" bind:value={$shapeStore.angle} placeholder="Angle" />
+  </label>
+  <label>
+    HTML Element:
+    <select bind:value={$shapeStore.htmlElement}>
+      {#each supportedHtmlElements.filter(n => n != "nullElement") as htmlElement}
+        <option value={htmlElement}>{htmlElement}</option>
+      {/each}
+    </select>
   </label>
 </div>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { shapeStore } from "./shapestore";
+  import { supportedHtmlElements } from "./customTypes";
 </script>
 
 <div id="circleOptions" class="options">
@@ -18,5 +19,13 @@
   <label>
     radius:
     <input type="number" bind:value={$shapeStore.radius} placeholder="Fill" />
+  </label>
+  <label>
+    HTML Element:
+    <select bind:value={$shapeStore.htmlElement}>
+      {#each supportedHtmlElements.filter(n => n != "nullElement") as htmlElement}
+        <option value={htmlElement}>{htmlElement}</option>
+      {/each}
+    </select>
   </label>
 </div>
