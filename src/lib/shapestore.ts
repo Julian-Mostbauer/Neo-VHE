@@ -26,5 +26,5 @@ export const shapeStore = writable<ShapeData>({
   rx: 50,
   ry: 100,
   points: [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 100 }],
-  htmlElement: "button",
+  htmlElement: "nullElement",
 });

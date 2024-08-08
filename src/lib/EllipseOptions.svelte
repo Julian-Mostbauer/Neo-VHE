@@ -1,5 +1,6 @@
 <script lang="ts">
   import { shapeStore } from "./shapestore";
+  import { supportedHtmlElements } from "./customTypes";
 </script>
 
 <div id="ellipseOptions" class="options">
@@ -22,5 +23,13 @@
   <label>
     ry:
     <input type="number" bind:value={$shapeStore.ry} placeholder="ry" />
+  </label>
+  <label>
+    HTML Element:
+    <select bind:value={$shapeStore.htmlElement}>
+      {#each supportedHtmlElements as htmlElement}
+        <option value={htmlElement}>{htmlElement}</option>
+      {/each}
+    </select>
   </label>
 </div>
