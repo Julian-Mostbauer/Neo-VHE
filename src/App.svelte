@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { tick } from "svelte";
 
+  import { endpoint } from "./lib/internals";
   import type { HtmlElement, Shape } from "./lib/customTypes.ts";
 
   import { shapeStore } from "./lib/shapestore";
@@ -31,9 +32,10 @@
   };
 
   let selectedOption: Shape = "rect";
+
   let notification = {
-    text: "This is a notification!",
-    isVisible: false,
+    text: "Default notification text! This should not be visible!",
+    remainingLiveTime: 0,
   };
 
   let canvas: fabric.Canvas;
@@ -158,17 +160,19 @@
   }
 
   function showNotification(text: string, duration: number = 3000) {
-    notification.isVisible = true;
+    notification.remainingLiveTime += duration;
     notification.text = text;
-    setTimeout(() => {
-      notification.isVisible = false;
-    }, duration);
+    for (let i = 0; i < duration && notification.remainingLiveTime > 0; i++) {
+      setTimeout(() => {
+        notification.remainingLiveTime -= 1;
+      }, 2000);
+    }
   }
 
-  function exportToClipboard() {
-    if (canvas) {
-      let nullElementFlag = false;
-      const data = canvas.toJSON().objects.map((obj): string => {
+  function getCanvasData(): [string[], boolean] {
+    let nullElementFlag = false;
+    return [
+      canvas.toJSON().objects.map((obj): string => {
         // @ts-ignore
         // the htmlElement is saved within the strokeLineCap property
         if (!isHtmlElement(obj.strokeLineCap)) {
@@ -176,7 +180,14 @@
           obj.strokeLineCap = "nullElement";
         }
         return JSON.stringify(obj);
-      });
+      }),
+      nullElementFlag,
+    ];
+  }
+
+  function exportToClipboard() {
+    if (canvas) {
+      const [data, nullElementFlag] = getCanvasData();
 
       if (data.length === 0) {
         showNotification("No data to copy!");
@@ -192,6 +203,38 @@
       );
     }
   }
+
+  function generateHtml() {
+    if (canvas) {
+      const [data, nullElementFlag]: [string[], boolean] = getCanvasData();
+
+      if (data.length === 0) {
+        showNotification("Error: No data to generate HTML!");
+        return;
+      }
+      if (nullElementFlag) {
+        showNotification("Warning: Some objects had null elements.");
+      }
+
+      const canvasData: string = JSON.stringify(data);
+      fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: canvasData,
+      })
+        .then((response) => response.text())
+        .then((responseText) => {
+          navigator.clipboard.writeText(responseText);
+          showNotification("Response copied to clipboard!");
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          showNotification("Error occurred while making the request! " + error);
+        });
+    }
+  }
 </script>
 
 <svelte:head>
@@ -201,7 +244,7 @@
 </svelte:head>
 
 <main>
-  {#if notification.isVisible}
+  {#if notification.remainingLiveTime > 0}
     <div class="notification">{notification.text}</div>
   {/if}
 
@@ -221,6 +264,7 @@
       <button on:click={addShape}>Add {optionsMap[selectedOption].label}</button
       >
     {/if}
+    <button on:click={generateHtml}>Generate HTML</button>
   </div>
 
   <canvas class="main-canvas" id="c"></canvas>
