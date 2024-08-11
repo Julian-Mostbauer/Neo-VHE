@@ -37,6 +37,10 @@
     text: "Default notification text! This should not be visible!",
     remainingLiveTime: 0,
   };
+  let generatedHtml = {
+    content: "Default generated HTML! This should not be visible!",
+    visible: false,
+  };
 
   let canvas: fabric.Canvas;
 
@@ -226,6 +230,9 @@
       })
         .then((response) => response.text())
         .then((responseText) => {
+          generatedHtml.visible = true;
+          generatedHtml.content = responseText;
+          console.log("Response:", responseText);
           navigator.clipboard.writeText(responseText);
           showNotification("Response copied to clipboard!");
         })
@@ -234,6 +241,10 @@
           showNotification("Error occurred while making the request! " + error);
         });
     }
+  }
+
+  function closeGeneratedHtml() {
+    generatedHtml.visible = false;
   }
 </script>
 
@@ -244,10 +255,6 @@
 </svelte:head>
 
 <main>
-  {#if notification.remainingLiveTime > 0}
-    <div class="notification">{notification.text}</div>
-  {/if}
-
   <div id="allOptions" class="control-panel">
     <select bind:value={selectedOption}>
       {#each supportedShapes as shape}
@@ -268,4 +275,17 @@
   </div>
 
   <canvas class="main-canvas" id="c"></canvas>
+
+  {#if generatedHtml.visible}
+    <div class="notification">
+      <textarea name="code" id="code" class="code-area" rows="20" cols="80" readonly
+        >{generatedHtml.content}</textarea
+      >
+      <button class="close-button" on:click={closeGeneratedHtml}>X</button>
+    </div>
+  {/if}
+
+  {#if notification.remainingLiveTime > 0}
+    <div class="notification">{notification.text}</div>
+  {/if}
 </main>
