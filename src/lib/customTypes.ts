@@ -1,4 +1,4 @@
-export const supportedHtmlElements= [
+export const supportedHtmlElements = [
   "button",
   "div",
   "span",
@@ -26,3 +26,13 @@ export function isHtmlElement(value: string): value is HtmlElement {
 export function isShape(value: string): value is Shape {
   return supportedShapes.includes(value as Shape);
 }
+
+export type headerData = {
+  title: string;
+  icon: string;
+};
+
+export type canvasOutputData = {
+  headerData: headerData;
+  shapes: fabric.Object[];
+};

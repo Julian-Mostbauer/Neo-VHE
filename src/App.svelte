@@ -3,7 +3,12 @@
   import { tick } from "svelte";
 
   import { endpoint } from "./lib/internals";
-  import type { HtmlElement, Shape } from "./lib/customTypes.ts";
+  import type {
+    canvasOutputData,
+    headerData,
+    HtmlElement,
+    Shape,
+  } from "./lib/customTypes.ts";
 
   import { shapeStore } from "./lib/shapestore";
   import {
@@ -31,6 +36,11 @@
     height: 800,
   };
 
+  let headerData: headerData = {
+    title: "Default-Title",
+    icon: "https://cdn.oaistatic.com/_next/static/media/favicon-32x32.630a2b99.png",
+  };
+
   let selectedOption: Shape = "rect";
 
   let notification = {
@@ -49,6 +59,7 @@
     if (canvasElement) {
       canvasElement.width = canvasDimensions.width;
       canvasElement.height = canvasDimensions.height;
+
       // @ts-ignore
       canvas = new fabric.Canvas(canvasElement);
     }
@@ -173,19 +184,17 @@
     }
   }
 
-  function getCanvasData(): [string[], boolean] {
-    let nullElementFlag = false;
+  function getCanvasData(): [canvasOutputData, boolean] {
+    let outputdata: canvasOutputData = {
+      headerData: headerData,
+      shapes: canvas.toJSON().objects,
+    };
+
     return [
-      canvas.toJSON().objects.map((obj): string => {
-        // @ts-ignore
-        // the htmlElement is saved within the strokeLineCap property
-        if (!isHtmlElement(obj.strokeLineCap)) {
-          nullElementFlag = true;
-          obj.strokeLineCap = "nullElement";
-        }
-        return JSON.stringify(obj);
-      }),
-      nullElementFlag,
+      outputdata,
+      outputdata.shapes.some(
+        (shape) => !isHtmlElement(shape.strokeLineCap ?? " ")
+      ),
     ];
   }
 
@@ -193,12 +202,12 @@
     if (canvas) {
       const [data, nullElementFlag] = getCanvasData();
 
-      if (data.length === 0) {
-        showNotification("No data to copy!");
+      if (data.shapes.length === 0) {
+        showNotification("Empty canvas! Nothing to export!");
         return;
       }
 
-      navigator.clipboard.writeText(data.join("\n"));
+      navigator.clipboard.writeText(JSON.stringify(data));
 
       showNotification(
         !nullElementFlag
@@ -210,12 +219,13 @@
 
   function generateHtml() {
     if (canvas) {
-      const [data, nullElementFlag]: [string[], boolean] = getCanvasData();
+      const [data, nullElementFlag] = getCanvasData();
 
-      if (data.length === 0) {
+      if (data.shapes.length === 0) {
         showNotification("Error: No data to generate HTML!");
         return;
       }
+
       if (nullElementFlag) {
         showNotification("Warning: Some objects had null elements.");
       }
@@ -274,12 +284,39 @@
     <button on:click={generateHtml}>Generate HTML</button>
   </div>
 
-  <canvas class="main-canvas" id="c"></canvas>
+  <div class="browser-window">
+    <div class="tab-bar">
+      <div class="tab">
+        <img
+          src="https://cdn.oaistatic.com/_next/static/media/favicon-32x32.630a2b99.png"
+          alt="icon"
+        />
+        <input
+          type="text"
+          class="tab-input"
+          placeholder="name"
+          bind:value={headerData.title}
+        />
+      </div>
+      <div class="tab">
+        <img src="/github-mark-white.png" alt="icon" />
+        <a class="tab-text" href="https://github.com/Julian-Mostbauer/Neo-VHE"
+          >Neo-VHE</a
+        >
+      </div>
+    </div>
+    <canvas class="main-canvas" id="c"></canvas>
+  </div>
 
   {#if generatedHtml.visible}
     <div class="notification">
-      <textarea name="code" id="code" class="code-area" rows="20" cols="80" readonly
-        >{generatedHtml.content}</textarea
+      <textarea
+        name="code"
+        id="code"
+        class="code-area"
+        rows="20"
+        cols="80"
+        readonly>{generatedHtml.content}</textarea
       >
       <button class="close-button" on:click={closeGeneratedHtml}>X</button>
     </div>
