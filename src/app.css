@@ -54,26 +54,26 @@ input {
 }
 
 .notification {
-  position: fixed;
-  justify-self: center;
   background-color: #000000;
   color: #ffffff;
   padding: 1rem;
   border-radius: 0.5rem;
-  animation: fadeIn 1s forwards;
+  transition: all 0.2s ease-in-out;
+}
+
+
+
+.notification-area {
+  position: absolute;
+  z-index: 100;
+  justify-self: center;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-@keyframes fadeIn {
-  100% {
-    opacity: 1;
-  }
-  0% {
-    opacity: 0;
-  }
-}
-
-.close-button{
+.close-button {
   right: 0;
   top: 0;
   padding: 0.5rem;
@@ -87,7 +87,7 @@ input {
   height: 2rem;
 }
 
-.browser-window{
+.browser-window {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -97,7 +97,7 @@ input {
   margin-top: 1rem;
 }
 
-.tab-bar{
+.tab-bar {
   display: flex;
   flex-direction: row;
   align-items: right;
@@ -108,7 +108,7 @@ input {
   width: 100%;
 }
 
-.tab{
+.tab {
   display: flex;
   justify-content: left;
   padding: 0.2rem;
@@ -121,7 +121,7 @@ input {
   max-width: fit-content;
 }
 
-.tab-input{
+.tab-input {
   border: 2px solid #ffffff;
   border-radius: 0.5rem;
   margin: 0.2rem;
@@ -129,7 +129,7 @@ input {
   width: fit-content;
 }
 
-.tab-text{
+.tab-text {
   margin: 0.2rem;
   padding: 0.2rem;
 }

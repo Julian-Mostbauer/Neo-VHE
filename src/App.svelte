@@ -3,18 +3,28 @@
   import { tick } from "svelte";
 
   import { endpoint } from "./lib/internals";
+  import { shapeStore } from "./lib/shapestore";
+
+  import { notifications, addNotification } from "./lib/notificationStore";
+
+  function showNotification(text: string, liveTime = 5000) {
+    addNotification(text, liveTime);
+  }
+
   import type {
     canvasOutputData,
     headerData,
     HtmlElement,
+    exportDataFlags,
     Shape,
   } from "./lib/customTypes.ts";
 
-  import { shapeStore } from "./lib/shapestore";
   import {
     isHtmlElement,
     supportedShapes,
     supportedHtmlElements,
+    getDataFlags,
+    generateWarnings,
   } from "./lib/customTypes";
 
   import RectOptions from "./lib/RectOptions.svelte";
@@ -43,10 +53,6 @@
 
   let selectedOption: Shape = "rect";
 
-  let notification = {
-    text: "Default notification text! This should not be visible!",
-    remainingLiveTime: 0,
-  };
   let generatedHtml = {
     content: "Default generated HTML! This should not be visible!",
     visible: false,
@@ -174,61 +180,33 @@
     }
   }
 
-  function showNotification(text: string, duration: number = 3000) {
-    notification.remainingLiveTime += duration;
-    notification.text = text;
-    for (let i = 0; i < duration && notification.remainingLiveTime > 0; i++) {
-      setTimeout(() => {
-        notification.remainingLiveTime -= 1;
-      }, 2000);
-    }
-  }
-
-  function getCanvasData(): [canvasOutputData, boolean] {
+  function getCanvasData(): [canvasOutputData, exportDataFlags] {
     let outputdata: canvasOutputData = {
       headerData: headerData,
       shapes: canvas.toJSON().objects,
     };
 
-    return [
-      outputdata,
-      outputdata.shapes.some(
-        (shape) => !isHtmlElement(shape.strokeLineCap ?? " ")
-      ),
-    ];
+    return [outputdata, getDataFlags(outputdata.shapes)];
   }
 
   function exportToClipboard() {
     if (canvas) {
-      const [data, nullElementFlag] = getCanvasData();
-
-      if (data.shapes.length === 0) {
-        showNotification("Empty canvas! Nothing to export!");
-        return;
-      }
+      const [data, dataFlags] = getCanvasData();
 
       navigator.clipboard.writeText(JSON.stringify(data));
 
-      showNotification(
-        !nullElementFlag
-          ? "Canvas data copied to clipboard!"
-          : "Canvas data copied to clipboard! Some objects had null elements."
-      );
+      let msg =
+        "Canvas data copied to clipboard! " + generateWarnings(dataFlags);
+      showNotification(msg, dataFlags.noIssues ? 3000 : 5000);
     }
   }
 
   function generateHtml() {
     if (canvas) {
-      const [data, nullElementFlag] = getCanvasData();
+      const [data, dataFlags] = getCanvasData();
 
-      if (data.shapes.length === 0) {
-        showNotification("Error: No data to generate HTML!");
-        return;
-      }
-
-      if (nullElementFlag) {
-        showNotification("Warning: Some objects had null elements.");
-      }
+      let msg = "Html generation started! " + generateWarnings(dataFlags);
+      showNotification(msg, dataFlags.noIssues ? 3000 : 5000);
 
       const canvasData: string = JSON.stringify(data);
       fetch(endpoint, {
@@ -322,7 +300,15 @@
     </div>
   {/if}
 
-  {#if notification.remainingLiveTime > 0}
-    <div class="notification">{notification.text}</div>
-  {/if}
+  <div class="notification-area">
+    {#each $notifications as { id, text, lifetime, initialLifetime }}
+      <div
+        class="notification"
+        style="opacity: {/*int out smove*/
+        Math.cos(Math.PI * (lifetime / initialLifetime - 1 / 2))};"
+      >
+        {text}
+      </div>
+    {/each}
+  </div>
 </main>
