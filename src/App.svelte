@@ -20,7 +20,6 @@
   } from "./lib/customTypes.ts";
 
   import {
-    isHtmlElement,
     supportedShapes,
     supportedHtmlElements,
     getDataFlags,
@@ -259,6 +258,7 @@
       <button on:click={addShape}>Add {optionsMap[selectedOption].label}</button
       >
     {/if}
+
     <button on:click={generateHtml}>Generate HTML</button>
   </div>
 
@@ -283,6 +283,7 @@
         >
       </div>
     </div>
+    
     <canvas class="main-canvas" id="c"></canvas>
   </div>
 

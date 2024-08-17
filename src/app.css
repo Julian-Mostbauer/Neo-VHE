@@ -1,26 +1,3 @@
-.main-canvas {
-  border: 2px solid #000000;
-  position: absolute;
-}
-.options {
-  display: flex;
-  flex-direction: column;
-  align-items: right;
-  padding: 1rem;
-  margin: 1rem;
-}
-
-.control-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: right;
-  padding: 1rem;
-  border: solid 2px #000000;
-  border-radius: 1rem;
-  min-width: 20rem;
-  margin: 1rem;
-}
-
 main {
   display: flex;
   flex-direction: row;
@@ -61,8 +38,6 @@ input {
   transition: all 0.2s ease-in-out;
 }
 
-
-
 .notification-area {
   position: absolute;
   z-index: 100;
@@ -88,24 +63,28 @@ input {
 }
 
 .browser-window {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  padding-top: 1rem;
-  margin-top: 1rem;
+  max-width: fit-content;
 }
 
 .tab-bar {
   display: flex;
   flex-direction: row;
-  align-items: right;
   justify-content: left;
   background-color: #000000;
   color: #ffffff;
   height: 3rem;
-  width: 100%;
+  width: 100%;  /* Ensure the tab bar takes the full width */
+  box-sizing: border-box; /* Include padding/border in the element's width and height */
+  padding: 0; /* Remove padding if any */
+  margin: 0;  /* Remove margin if any */
+}
+
+.main-canvas {
+  border: 2px solid #000000;
+  display: block;
+  width: 100%;  /* Match the width of the tab bar */
+  box-sizing: border-box; /* Ensures border is included in width calculation */
+  margin: 0;  /* Remove margin if any */
 }
 
 .tab {
@@ -132,4 +111,23 @@ input {
 .tab-text {
   margin: 0.2rem;
   padding: 0.2rem;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  align-items: right;
+  padding: 1rem;
+  margin: 1rem;
+}
+
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: right;
+  padding: 1rem;
+  border: solid 2px #000000;
+  border-radius: 1rem;
+  min-width: 20rem;
+  margin: 1rem;
 }
