@@ -1,6 +1,27 @@
 <script lang="ts">
   import { shapeStore } from "./shapestore";
   import { supportedHtmlElements } from "./customTypes";
+
+  let newPoint = { x: 0, y: 0 };
+  let points: { x: number; y: number }[] = $shapeStore.points;
+
+  function addPoint() {
+    points = [...points, { ...newPoint }];
+    shapeStore.update(store => {
+      store.points = points;
+      return store;
+    });
+  }
+
+  function removePoint(index: number) {
+    points = points.filter((_, i) => i !== index);
+    shapeStore.update(store => {
+      store.points = points;
+      return store;
+    });
+  }
+
+  $: points = $shapeStore.points;
 </script>
 
 <div id="polygonOptions" class="options">
@@ -28,24 +49,40 @@
           </tr>
         </thead>
         <tbody>
-          {#each $shapeStore.points as point, index}
+          {#each points as point, index}
             <tr>
               <td>
                 <input
                   type="number"
-                  bind:value={$shapeStore.points[index].x}
+                  bind:value={points[index].x}
                   placeholder="X"
                 />
               </td>
               <td>
                 <input
                   type="number"
-                  bind:value={$shapeStore.points[index].y}
+                  bind:value={points[index].y}
                   placeholder="Y"
                 />
               </td>
+              <td>
+                <button on:click={() => removePoint(index)}>
+                  Remove
+                </button>
+              </td>
             </tr>
           {/each}
+          <tr>
+            <td>
+              <input type="number" bind:value={newPoint.x} placeholder="X" />
+            </td>
+            <td>
+              <input type="number" bind:value={newPoint.y} placeholder="Y" />
+            </td>
+            <td>
+              <button on:click={addPoint}> Add </button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>

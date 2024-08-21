@@ -137,3 +137,8 @@ input {
   max-height: 15rem;
   overflow-x: hidden;
 }
+
+.point-table input{
+  max-width: fit-content;
+  width: 3rem;
+}
