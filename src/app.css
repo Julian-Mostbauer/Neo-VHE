@@ -73,18 +73,18 @@ input {
   background-color: #000000;
   color: #ffffff;
   height: 3rem;
-  width: 100%;  /* Ensure the tab bar takes the full width */
+  width: 100%; /* Ensure the tab bar takes the full width */
   box-sizing: border-box; /* Include padding/border in the element's width and height */
   padding: 0; /* Remove padding if any */
-  margin: 0;  /* Remove margin if any */
+  margin: 0; /* Remove margin if any */
 }
 
 .main-canvas {
   border: 2px solid #000000;
   display: block;
-  width: 100%;  /* Match the width of the tab bar */
+  width: 100%; /* Match the width of the tab bar */
   box-sizing: border-box; /* Ensures border is included in width calculation */
-  margin: 0;  /* Remove margin if any */
+  margin: 0; /* Remove margin if any */
 }
 
 .tab {
@@ -132,13 +132,13 @@ input {
   margin: 1rem;
 }
 
-.point-table-container{
+.point-table-container {
   overflow-y: auto;
   max-height: 15rem;
   overflow-x: hidden;
 }
 
-.point-table input{
+.point-table input {
   max-width: fit-content;
   width: 3rem;
 }

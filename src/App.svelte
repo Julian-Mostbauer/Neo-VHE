@@ -283,7 +283,7 @@
         >
       </div>
     </div>
-    
+
     <canvas class="main-canvas" id="c"></canvas>
   </div>
 

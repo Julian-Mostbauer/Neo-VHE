@@ -7,7 +7,7 @@
 
   function addPoint() {
     points = [...points, { ...newPoint }];
-    shapeStore.update(store => {
+    shapeStore.update((store) => {
       store.points = points;
       return store;
     });
@@ -15,7 +15,7 @@
 
   function removePoint(index: number) {
     points = points.filter((_, i) => i !== index);
-    shapeStore.update(store => {
+    shapeStore.update((store) => {
       store.points = points;
       return store;
     });
@@ -66,9 +66,7 @@
                 />
               </td>
               <td>
-                <button on:click={() => removePoint(index)}>
-                  Remove
-                </button>
+                <button on:click={() => removePoint(index)}> Remove </button>
               </td>
             </tr>
           {/each}
